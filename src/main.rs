@@ -30,7 +30,7 @@ fn new_executor_and_spawner() -> (Executor, Spawner) {
 
 impl Spawner {
     fn spawn(&self, future: impl Future<Output = ()> + 'static + Send) {
-        let future = future.boxed();
+        let future = future.boxed();// 唯一的Future实例(?)
         let task = Arc::new(Task {
             future: Mutex::new(Some(future)), 
             task_sender: self.task_sender.clone(),
@@ -66,7 +66,7 @@ fn main() {
     
     spawner.spawn(async {
         println!("FUCK!");
-        TimerFuture::new(Duration::new(2, 0)).await;
+        TimerFuture::new(Duration::new(20, 0)).await;
         println!("YOU!");
     });
  

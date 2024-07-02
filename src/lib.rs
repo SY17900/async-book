@@ -23,7 +23,7 @@ impl Future for TimerFuture {
         if shared_state.completed {
             Poll::Ready(())
         } else {
-            shared_state.waker = Some(cx.waker().clone());
+            shared_state.waker = Some(cx.waker().clone());// 这里注册了waker()，可以当成一个回调
             Poll::Pending
         }
     }
