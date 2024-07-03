@@ -5,7 +5,6 @@ use futures::{
 use std::{
     future::Future, sync::{mpsc::{sync_channel, Receiver, SyncSender}, Arc, Mutex}, task::Context, time::Duration
 };
-// The timer we wrote in the previous section:
 use timer_future::TimerFuture;
 
 struct Executor {
@@ -23,7 +22,7 @@ struct Task {
 }
 
 fn new_executor_and_spawner() -> (Executor, Spawner) {
-    const MAX_QUEUED_TASKS: usize = 10000;
+    const MAX_QUEUED_TASKS: usize = 10_000;
     let (task_sender, ready_queue) = sync_channel(MAX_QUEUED_TASKS);
     (Executor { ready_queue }, Spawner { task_sender })
 }
@@ -48,7 +47,9 @@ impl ArcWake for Task {
 
 impl Executor {
     fn run(&self) {
+        let mut _count = 0;
         while let Ok(task) = self.ready_queue.recv() {
+            _count += 1;
             let mut future_slot = task.future.lock().unwrap();
             if let Some(mut future) = future_slot.take() {
                 let waker = waker_ref(&task);
@@ -64,7 +65,7 @@ impl Executor {
 fn main() {
     let (executor, spawner) = new_executor_and_spawner();
     
-    spawner.spawn(async {
+    spawner.spawn(async {// 注意这里传进去的是一个async块
         println!("FUCK!");
         TimerFuture::new(Duration::new(20, 0)).await;
         println!("YOU!");
